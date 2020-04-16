@@ -20,10 +20,11 @@ public class UR5Controller : MonoBehaviour {
     public static Mat target_pose;
     public static RoboDK.Item ROBOT;
     public LeapServiceProvider provider;
-    double x, y, z, X = 0, Y = 0, Z = 0 , Pitch =0;
+    double x, y, z, X = 0, Y = 0, Z = 0 , Yaw =0;
     //double[] joints;
     double Factor_LM = 40; //400
     bool Gripper_On = false;
+    int extendedFingers = 0;
     
     // Use this for initialization
     void Start () {
@@ -56,12 +57,19 @@ public class UR5Controller : MonoBehaviour {
                X = hand.PalmPosition.z;
                Y = hand.PalmPosition.x;
                Z = hand.PalmPosition.y;
-               Pitch = hand.Rotation.y * 180 * 7 / 22;
+               Yaw = hand.Rotation.z * 180 * 7 / 22;  
+               extendedFingers = 0;
+               for (int f = 0; f < hand.Fingers.Count; f++)  
+               {   //Check gripper State:
+                   Finger digit = hand.Fingers [f];
+                   if (digit.IsExtended) 
+                   extendedFingers++;
+               }
            }
         x = xyz_ref[0] + X * Factor_LM;
         y = xyz_ref[1] - Y * Factor_LM;
         z = xyz_ref[2] + Z * Factor_LM;
-        //Debug.Log(Pitch);
+        //Debug.Log(Yaw);
         }
         target_pose.setPos(x, y, z);
         ROBOT.MoveL(target_pose);
@@ -71,7 +79,7 @@ public class UR5Controller : MonoBehaviour {
         jointValues[3]+=90;
         //jointValues[4]-=90;
         jointValues[4]*=-1;
-        //jointValues[5]*=-1;
+        jointValues[5]=+Yaw;
 
         for ( int i = 0; i < 6; i ++) {
             Vector3 currentRotation = jointList[i].transform.localEulerAngles;
@@ -79,22 +87,22 @@ public class UR5Controller : MonoBehaviour {
             currentRotation.z = (float)jointValues[i];
             jointList[i].transform.localEulerAngles = currentRotation;
         }
-        if (Pitch > 40 || Pitch < -40 && !Gripper_On)
+        if (extendedFingers <= 1)
         {
             Gripper_On = true; 
             for ( int i = 0; i < 3; i ++) {
                 Vector3 currentRotation_gripper = gripperList[i].transform.localEulerAngles;
-                Debug.Log(Pitch);
+                //Debug.Log();
                 currentRotation_gripper.x = (float)gripperValues[i];
                 gripperList[i].transform.localEulerAngles = currentRotation_gripper;
             }
         }
-        else if (Pitch < 40 || Pitch > -40 && Gripper_On)
+        else if (extendedFingers >= 3)
         {
             Gripper_On = false; 
             for ( int i = 0; i < 3; i ++) {
                 Vector3 currentRotation_gripper = gripperList[i].transform.localEulerAngles;
-                Debug.Log(Pitch);
+                //Debug.Log(Pitch);
                 currentRotation_gripper.x = 0.0f;
                 gripperList[i].transform.localEulerAngles = currentRotation_gripper;
             }
@@ -141,7 +149,7 @@ public class UR5Controller : MonoBehaviour {
             else if (RobotChildren[i].name == "control5") {
                 jointList[5] = RobotChildren[i].gameObject;
             }
-            //====================================================
+            //================Gripper==================
             else if (RobotChildren[i].name == "victor_right_gripper_fingerA_base") {
                 gripperList[0] = RobotChildren[i].gameObject;
             }
