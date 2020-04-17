@@ -21,7 +21,7 @@ public class UR5Controller : MonoBehaviour {
     public static RoboDK.Item ROBOT;
     public LeapServiceProvider provider;
     double x, y, z, X = 0, Y = 0, Z = 0 , Yaw =0;
-    //double[] joints;
+    double[] home_joints = {0.0f , -90.0f, -90.0f, 0.0f , 90.0f, 0.0f};
     double Factor_LM = 40; //400
     bool Gripper_On = false;
     int extendedFingers = 0;
@@ -32,7 +32,7 @@ public class UR5Controller : MonoBehaviour {
         RoboDK RDK = new RoboDK();
         ROBOT = RDK.ItemUserPick("Select a robot", RoboDK.ITEM_TYPE_ROBOT);
         RDK.setRunMode(RoboDK.RUNMODE_SIMULATE);
-        //Variables.ROBOT.MoveJ(home_joints);
+        ROBOT.MoveJ(home_joints);
         Mat frame = ROBOT.PoseFrame();
         //Mat tool = Variables.ROBOT.PoseTool();
         Mat pose_ref = ROBOT.Pose();
