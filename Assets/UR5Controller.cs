@@ -20,9 +20,9 @@ public class UR5Controller : MonoBehaviour {
     public static Mat target_pose;
     public static RoboDK.Item ROBOT;
     public LeapServiceProvider provider;
-    double x, y, z, X = 0, Y = 0, Z = 0 , Yaw =0;
+    double x, y, z, X = 0, Y = 0, Z = 0 , Yaw =0, Pitch= 0, Roll = 0;
     double[] home_joints = {0.0f , -90.0f, -90.0f, 0.0f , 90.0f, 0.0f};
-    double Factor_LM = 40; //400
+    double Factor_LM = 30; //400
     bool Gripper_On = false;
     int extendedFingers = 0;
     
@@ -57,6 +57,8 @@ public class UR5Controller : MonoBehaviour {
                X = hand.PalmPosition.z;
                Y = hand.PalmPosition.x;
                Z = hand.PalmPosition.y;
+               Roll = hand.Rotation.x * 180 * 7 / 22;
+               Pitch = hand.Rotation.y * 180 * 7 / 22;
                Yaw = hand.Rotation.z * 180 * 7 / 22;  
                extendedFingers = 0;
                for (int f = 0; f < hand.Fingers.Count; f++)  
@@ -74,12 +76,14 @@ public class UR5Controller : MonoBehaviour {
         target_pose.setPos(x, y, z);
         ROBOT.MoveL(target_pose);
         jointValues = ROBOT.Joints();
-        jointValues[0]*=-1;
-        jointValues[1]+=90;
-        jointValues[3]+=90;
-        //jointValues[4]-=90;
-        jointValues[4]*=-1;
-        jointValues[5]=+Yaw;
+        // Mapping between system coordinates in unity and Leapmotion
+        jointValues[0]*= -1;
+        jointValues[1]+= 90;
+        jointValues[3]+= 90;
+        jointValues[3]-= Roll; 
+        jointValues[4]*= -1;
+        jointValues[4]+= Yaw;
+        jointValues[5]+= Pitch;
 
         for ( int i = 0; i < 6; i ++) {
             Vector3 currentRotation = jointList[i].transform.localEulerAngles;
