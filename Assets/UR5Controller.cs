@@ -80,9 +80,9 @@ public class UR5Controller : MonoBehaviour {
         jointValues[0]*= -1;
         jointValues[1]+= 90;
         jointValues[3]+= 90;
-        jointValues[3]-= Roll; 
+        //jointValues[3]-= Roll; 
         jointValues[4]*= -1;
-        jointValues[4]+= Yaw;
+        //jointValues[4]+= Yaw;
         jointValues[5]+= Pitch;
 
         for ( int i = 0; i < 6; i ++) {
