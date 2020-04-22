@@ -22,12 +22,13 @@ public class UR5Controller : MonoBehaviour {
     public static RoboDK.Item ROBOT;
     public LeapServiceProvider provider;
     double x, y, z, X = 0, Y = 0, Z = 0 , Yaw =0, Pitch= 0, Roll = 0;
-    double[] home_joints = {0.0f , -90.0f, -90.0f, 0.0f , 90.0f, 0.0f};
-    double Factor_LM = 30, Factor_VR = 10; //400
+    double[] home_joints = {0.0f, -90.0f, -90.0f, 0.0f, 90.0f, 0.0f};
+    double Factor_LM = 30, Factor_VR = 80; 
     bool Gripper_On = false;
     bool Leap_On = false;
     bool VR_controllers_On = true;
     int extendedFingers = 0;
+    double[] VR_Init_Pos = {0.0f, 0.0f, 0.0f};
     
     // Use this for initialization
     void Start () {
@@ -46,12 +47,15 @@ public class UR5Controller : MonoBehaviour {
         //Variables.ROBOT.setPoseTool(tool);   
         ROBOT.setSpeed(500);        
         ROBOT.setZoneData(5);
+        //Setting inial right controller 3D position
+        VR_Init_Pos[0] = Right_Controller.transform.position.z;
+        VR_Init_Pos[1] = Right_Controller.transform.position.x;
+        VR_Init_Pos[2] = Right_Controller.transform.position.y; 
+        Debug.Log(VR_Init_Pos[0] + "  " + VR_Init_Pos[1] + "  " + VR_Init_Pos[2]);
 	}
 	
 	// Update is called once per frame
 	void LateUpdate () {
-
-        
         if (Leap_On)
         {
             Frame frame = provider.CurrentFrame;
@@ -81,11 +85,11 @@ public class UR5Controller : MonoBehaviour {
         }
         else if (VR_controllers_On)
         {
-            X = Right_Controller.transform.position.z;
-            Y = Right_Controller.transform.position.x;
-            Z = Right_Controller.transform.position.y;
+            X = Right_Controller.transform.position.z - VR_Init_Pos[0];
+            Y = Right_Controller.transform.position.x - VR_Init_Pos[1];
+            Z = Right_Controller.transform.position.y - VR_Init_Pos[2];
             x = xyz_ref[0] + X * Factor_VR;
-            y = xyz_ref[1] + Y * Factor_VR;
+            y = xyz_ref[1] - Y * Factor_VR;
             z = xyz_ref[2] + Z * Factor_VR;
         }
         //Debug.Log(Yaw);       
