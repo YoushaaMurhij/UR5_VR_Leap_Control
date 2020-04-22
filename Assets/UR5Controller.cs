@@ -7,6 +7,7 @@ using Leap;
 using Leap.Unity;
 using Leap.Unity.Attributes;
 
+
 public class UR5Controller : MonoBehaviour {
 
     public GameObject RobotBase , Camera_Rig;
@@ -15,20 +16,21 @@ public class UR5Controller : MonoBehaviour {
     private GameObject[] jointList = new GameObject[6];
     private GameObject[] gripperList = new GameObject[3];
     private GameObject Right_Controller;
-    private double[] upperLimit = { 180f, 180f, 180f, 180f, 180f, 180f };
-    private double[] lowerLimit = { -180f, -180f, -180f, -180f, -180f, -180f };
+    private double[] upperLimit = { 360f, 360f, 360f, 360f, 360f, 360f };
+    private double[] lowerLimit = { -360f, -360f, -360f, -360f, -360f, -360f };
     public static double[] xyz_ref;
     public static Mat target_pose;
     public static RoboDK.Item ROBOT;
     public LeapServiceProvider provider;
     double x, y, z, X = 0, Y = 0, Z = 0 , Yaw =0, Pitch= 0, Roll = 0;
     double[] home_joints = {0.0f, -90.0f, -90.0f, 0.0f, 90.0f, 0.0f};
-    double Factor_LM = 30, Factor_VR = 80; 
+    double Factor_LM = 30, Factor_VR = 100; 
     bool Gripper_On = false;
     bool Leap_On = false;
     bool VR_controllers_On = true;
     int extendedFingers = 0;
     double[] VR_Init_Pos = {0.0f, 0.0f, 0.0f};
+
     
     // Use this for initialization
     void Start () {
@@ -51,7 +53,7 @@ public class UR5Controller : MonoBehaviour {
         VR_Init_Pos[0] = Right_Controller.transform.position.z;
         VR_Init_Pos[1] = Right_Controller.transform.position.x;
         VR_Init_Pos[2] = Right_Controller.transform.position.y; 
-        Debug.Log(VR_Init_Pos[0] + "  " + VR_Init_Pos[1] + "  " + VR_Init_Pos[2]);
+        //Debug.Log(VR_Init_Pos[0] + "  " + VR_Init_Pos[1] + "  " + VR_Init_Pos[2]);
 	}
 	
 	// Update is called once per frame
@@ -88,6 +90,9 @@ public class UR5Controller : MonoBehaviour {
             X = Right_Controller.transform.position.z - VR_Init_Pos[0];
             Y = Right_Controller.transform.position.x - VR_Init_Pos[1];
             Z = Right_Controller.transform.position.y - VR_Init_Pos[2];
+            Roll  = Right_Controller.transform.rotation.x * 180 * 7 / 22;
+            Pitch = Right_Controller.transform.rotation.y * 180 * 7 / 22;
+            Yaw   = Right_Controller.transform.rotation.z * 180 * 7 / 22;
             x = xyz_ref[0] + X * Factor_VR;
             y = xyz_ref[1] - Y * Factor_VR;
             z = xyz_ref[2] + Z * Factor_VR;
@@ -100,7 +105,7 @@ public class UR5Controller : MonoBehaviour {
         jointValues[0]*= -1;
         jointValues[1]+= 90;
         jointValues[3]+= 90;
-        //jointValues[3]-= Roll; 
+        jointValues[3]-= Roll; 
         jointValues[4]*= -1;
         //jointValues[4]+= Yaw;
         jointValues[5]+= Pitch;
