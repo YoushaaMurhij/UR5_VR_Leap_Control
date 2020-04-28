@@ -8,5 +8,5 @@ Leapmotion sensor and/or HTC VIVE VR instruments.
 </p>
 
 <p align="center">
-  <img  src="/UR5.gif"> </img>
+  <img height = 300 src="/ur5_lm.gif"> </img>
 </p>
